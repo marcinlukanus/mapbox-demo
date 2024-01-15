@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
@@ -6,22 +6,22 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 export default function App() {
   const mapContainer = useRef(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [lng, setLng] = useState(-71.61);
-  const [lat, setLat] = useState(42.27);
+  const [lng, setLng] = useState<number>(-71.61);
+  const [lat, setLat] = useState<number>(42.27);
   const [zoom, setZoom] = useState(8);
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
-      container: mapContainer.current,
+      container: mapContainer.current!,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [lng, lat],
       zoom: zoom,
     });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current!.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-    map.current.on('load', () => {
+    map.current!.on('load', () => {
       const start = {
         lng: -71.05,
         lat: 42.35,
@@ -36,7 +36,7 @@ export default function App() {
       };
 
       // Add the route line
-      map.current.addSource('route', {
+      map.current!.addSource('route', {
         type: 'geojson',
         data: {
           type: 'Feature',
@@ -53,7 +53,7 @@ export default function App() {
         },
       });
 
-      map.current.addLayer({
+      map.current!.addLayer({
         id: 'route',
         type: 'line',
         source: 'route',
@@ -76,7 +76,7 @@ export default function App() {
       new mapboxgl.Marker({ color: 'green' })
         .setLngLat([start.lng, start.lat])
         .setPopup(startPopup) // sets a popup on this marker
-        .addTo(map.current);
+        .addTo(map.current!);
 
       // Create a popup for the end location
       const endPopup = new mapboxgl.Popup({ offset: 25 }).setText(
@@ -85,7 +85,7 @@ export default function App() {
       new mapboxgl.Marker({ color: 'red' })
         .setLngLat([end.lng, end.lat])
         .setPopup(endPopup) // sets a popup on this marker
-        .addTo(map.current);
+        .addTo(map.current!);
 
       // Create a popup for the current location
       const currentLocationPopup = new mapboxgl.Popup({ offset: 25 }).setText(
@@ -94,13 +94,13 @@ export default function App() {
       new mapboxgl.Marker({ color: 'blue' })
         .setLngLat([currentLocation.lng, currentLocation.lat])
         .setPopup(currentLocationPopup) // sets a popup on this marker
-        .addTo(map.current);
+        .addTo(map.current!);
     });
 
-    map.current.on('move', () => {
-      setLng(map.current.getCenter().lng.toFixed(4));
-      setLat(map.current.getCenter().lat.toFixed(4));
-      setZoom(map.current.getZoom().toFixed(2));
+    map.current!.on('move', () => {
+      setLng(parseFloat(map.current!.getCenter().lng.toFixed(4)));
+      setLat(parseFloat(map.current!.getCenter().lat.toFixed(4)));
+      setZoom(parseFloat(map.current!.getZoom().toFixed(2)));
     });
   }, [lat, lng, zoom]);
 
